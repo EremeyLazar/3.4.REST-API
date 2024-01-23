@@ -1,7 +1,9 @@
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class Consumer {
 
@@ -13,8 +15,11 @@ public class Consumer {
 
         RestTemplate template = new RestTemplate();
         ResponseEntity<String> responseEntityEntity = template.getForEntity(URL, String.class);
-        List<String> cookies = responseEntityEntity.getHeaders().get("Set-Cookie");
-
+//      List<String> cookies = responseEntityEntity.getHeaders().get("Set-Cookie"); // без проверки на null
+        List<String> cookies = Optional.ofNullable(responseEntityEntity)
+                .map(ResponseEntity::getHeaders)
+                .map(headers -> headers.get("Set-Cookie"))
+                .orElse(Collections.emptyList());
         System.out.println("Received Cookies: " + cookies);
 
         HttpHeaders headers = new HttpHeaders();
